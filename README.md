@@ -1,6 +1,6 @@
 # Drebin:
 ## To extract the features, use ``GetApkData.py`` script:
-This script generates ".data" files that represents the features extracted from the APK files.
+This script generates ".data" files that represent the features extracted from the APK files.
 
 INPUTs are: The path to the APK files directory and optionally the number of CPUs to use. 
             They are explained in details in the script.
@@ -64,7 +64,7 @@ Example:
 
 ```python MaMaStat.py -d Trial1 -wf N```
 
-To perform the classification, use `classification_mamadroid.py` script: 
+## To perform the classification, use `classification_mamadroid.py` script: 
 This script performs MaMaDroid's classification using Random Forest classifier.
 Scores (Precision, Recall, F1-score) are calculated using 10-folds cross-validation with and without 
 PCA for family and package modes. 
@@ -87,6 +87,229 @@ Example:
 
 ```python classification_mamadroid.py -pf Features/Families -pp Features/Packages -fs file_scores```
 
+
+# RevealDroid:
+## Notes:
+-To build RevealDroid, please follow the instructions in https://bitbucket.org/joshuaga/revealdroid/src/master/
+
+## To download the apps and extract the features, use ``load_apk_and_extract_features.py`` script:
+
+- Load the CSV file from AndroZoo https://androzoo.uni.lu/lists and put it in your home directory ~/
+It will be used if you try to download apps from AndroZoo using md5
+
+### INPUTs are: 
+    - The path to the txt file containing the hashes,
+    - The name of your dataset: my_dataset,
+    - A valid AndroZoo APIKEY
+
+### OUTPUTs are:
+    - The script downloads the apps from AndroZoo and extract the features that stores in:
+        - data/apiusage/my_dataset
+        - data/native_external_calls/my_dataset
+        - android-reflection-analysis/data/my_dataset
+    
+    
+## For malware detection , use ``run_cv_md.py`` script:
+
+### INPUTs are: 
+    - The name of your malware datasets separated by space. Note that the features of these datasets should be located in /data/apiusage/malware{i} /data/native_external_calls/malware{i} and ../android-reflection-analysis/data/malware{i}
+    - The name of your goodware datasets separated by space. Note that the features of these datasets should be located in /data/apiusage/goodware{i} /data/native_external_calls/goodware{i} and ../android-reflection-analysis/data/goodware{i}
+    - The name to be used to save the roc curve
+
+### OUTPUTs are:
+    - The script run 10-fold cross-validation and prints average precision, average recall, and average F1-score for both malware and goodware
+    - It also generates the PR curve
+
+## For family detection , use ``run_cv_family.py`` script:
+
+### INPUTs are: 
+    - The path to the file that contains hashes and their corresponding families separated by space. This file is available in dataset/revealdroid for both genome and all the datasets experiments
+    - The name of your malware datasets to consider. They should be separated by space. Note that the features of these datasets should be located in /data/apiusage/malware{i} /data/native_external_calls/malware{i} and ../android-reflection-analysis/data/malware{i}.
+    Also, for genome, you will need to provide only "drebin" name as this collection contains the genome apps.
+    - The name to be used to save the roc curve
+
+### OUTPUTs are:
+    - The script run 10-fold cross-validation and prints average accuracy
+
+
+
+# DroidCat:
+## Notes:
+- Make sure that droidcat repo is in your home directory ~/
+- Install the tools and dependecies listed in https://bitbucket.org/haipeng_cai/droidfax/src/master/portable/README
+- Make sure to install the android sdk manager in your home directory in ~/.android 
+- You can also use our helping script install.sh but make sure to change the path of your java and to change the JAVA_HOME environment variable.
+
+## To download the apps, use ``download_apps_androzoo.sh`` script:
+
+
+### INPUTs are: 
+    - A text file that contains the sha256. Note that the lists of hashes can be found in dataset/droidcat,
+    - The name of your dataset: my_dataset,
+    - A valid AndroZoo APIKEY
+
+### OUTPUTs are:
+    - The apps are saved in ~/droidcat/droidcat/testbed/inputs/my_dataset
+
+## To run static analysis on the apps, use ``instrument_apps.sh`` script:
+
+- You will need to create a key using keytool, then adapt the script signandalign.sh with the details of your key
+- Put the key you have created in ~/droidcat/droidcat/scripts
+- You will also have to create a file "droidcat_keytool_password" where you will store your password
+
+### INPUTs are: 
+    - The name of your dataset. Note that the apps should be stored in: ~/droidcat/droidcat/testbed/inputs/my_dataset
+
+### OUTPUTs are:
+    - The instrumented apps are saved in ~/droidcat/droidcat/testbed/cg.instrumented/my_dataset
+    
+    
+## To generate the call traces, use ``run_monkey.sh`` script:
+
+
+### INPUTs are: 
+    - The name of your dataset. Note that the instrumented apps should be stored in: ~/droidcat/droidcat/testbed/cg.instrumented/my_dataset
+
+### OUTPUTs are:
+    - The traces are saved in ~/droidcat/droidcat/testbed/monkey_results/my_dataset
+    
+    
+## To compute generalfeatures (structure), use ``extract_generalReport.sh`` script:
+
+
+### INPUTs are: 
+    - The name of your dataset. Note that the instrumented apps should be stored in: ~/droidcat/droidcat/testbed/cg.instrumented/my_dataset and the traces should be located in ~/droidcat/droidcat/testbed/monkey_results/my_dataset
+
+### OUTPUTs are:
+    - GeneralFeatures are saved in ~/droidcat/droidcat/testbed/allGeneralReports/my_dataset/gfeatures.txt
+  
+## To compute iccfeatures, use ``extract_iccReport.sh`` script:
+
+
+### INPUTs are: 
+    - The name of your dataset. Note that the instrumented apps should be stored in: ~/droidcat/droidcat/testbed/cg.instrumented/my_dataset and the traces should be located in ~/droidcat/droidcat/testbed/monkey_results/my_dataset
+
+### OUTPUTs are:
+    - ICCFeatures are saved in ~/droidcat/droidcat/testbed/allICCReports/my_dataset/iccfeatures.txt
+    
+## To compute securityfeatures, use ``extract_securityReport.sh`` script:
+
+
+### INPUTs are: 
+    - The name of your dataset. Note that the instrumented apps should be stored in: ~/droidcat/droidcat/testbed/cg.instrumented/my_dataset and the traces should be located in ~/droidcat/droidcat/testbed/monkey_results/my_dataset
+
+### OUTPUTs are:
+    - SecurityFeatures are saved in ~/droidcat/droidcat/testbed/allSecurityReports/my_dataset/securityfeatures.txt
+    
+## To arrange the features:
+
+- For each dataset, put the 3 features files in the same folder.
+- Move the datasets directories to a directory named features
+- Put your "features" directory in ~/droidcat/droidcat/ML
+- Based on the lists of hashes in dataset/DroidCat directory, you will end up with the following datasets:
+malware-2017-more, newzoo2011, vs2013, vs2014, vs2015, vs2016, zoo2010, zoo2011, zoo2012, zoo2017, zoobenign2010, zoobenign2011, zoobenign2012, zoobenign2013, zoobenign2014, zoobenign2015, zoobenign2016, zoobenign2017
+
+Example:
+
+```~/droidcat/droidcat/ML/zoobenign2014 should contain gfeatures.txt, iccfeatures.txt, and securityfeatures.txt of zoobenign2014 dataset```
+
+
+## To retrieve the first-seen dates of the apps, use ``splitAllByFirstSeenDate.sh`` script:
+
+-The new features are stored in features_droidcat_byfirstseen 
+
+###### Note that for reproducible experiments, you can uncomment the corresponding lines in the following files: common.py, configs.py, family_detection.py, featureLoader_wdate.py, malware_detection.py, plot_roc.py
+
+    
+## For malware detection, use ``malware_detection.py`` script:
+
+-This script prints for each of the 4 datasets (D1617, D1415, D1213, D0911): accuracy, recall, precision, and F1-score
+
+
+## For family classification, use ``family_detection.py`` script:
+
+-Load the CSV file from AndroZoo https://androzoo.uni.lu/lists and put it in your home directory ~/
+-Change the APIKEY variable in ~/droidcat/droidcat/ML/configs.py with your AndroZoo APIKEY
+-This script prints for each of the 4 datasets (D1617, D1415, D1213, D0911): accuracy, recall, precision, and F1-score
+    
+    
+## To generate the roc curves, use ``plot_roc.py`` script:
+
+
+### INPUTs are: 
+    - type: det for malware detection and fam for family detection
+    - file: The name of the output roc curve file
+
+### OUTPUTs are:
+    - The roc curve file
+    
+    
+# MalScan:
+## Notes:
+-You need to have the following python3 libraries installed: networkx, androguard, numpy, and sklearn
+
+## To download the apps, use ``download_apps_androzoo_malscan.sh`` script:
+
+
+### INPUTs are: 
+    - A text file that contains the sha256. Note that the lists of hashes can be found in dataset/malscan,
+    - The year of your dataset,
+    - The type of your apps; malware or goodware
+    - A valid AndroZoo APIKEY,
+
+### OUTPUTs are:
+    - The apps are saved in apps/year/type directory
+    
+## To generate the call graphs, use ``CallGraphExtraction.py`` script:
+
+
+### INPUTs are: 
+    - The path to your dir of APK files,
+    - The path to the output files
+
+### OUTPUTs are:
+    - The call graphs are saved in the path of output files you have provided
+    
+Example: 
+
+```python3 CallGraphExtraction.py -f apps/2011/malware -o callgraphs/2011/malware```   
+
+    
+## To extract the features, use ``FeatureExtraction.py`` script:
+
+
+### INPUTs are: 
+    - The path to your dir of call graphs. Note that your directory should contain both malware and goodware folders with their call graphs,
+    - The path to the output file
+    - The type of centrality: degree, katz, closeness, or harmonic
+
+### OUTPUTs are:
+    - The csv file of the chosen centrality is saved in the path of output file you have provided
+    
+Example: 
+
+```python3 FeatureExtraction.py -d callgraphs/2011 -o features/2011 -c degree``` 
+The script generates the file features/2011/degree.csv
+
+
+## To perform the classification, use ``Classification.py`` script:
+
+
+### INPUTs are: 
+    - The path to your dir of csv files generated in the previous step,
+    - The path to the output file
+    - The type of centrality: degree, closeness, harmonic, katz, average, or concatenate. Note that for degree, closeness, harmonic, and katz, you must have only the csv file of the chosen centrality. As for average and concatenate, you must have the csv files of degree, closeness, harmonic, and katz centralities.
+
+### OUTPUTs are:
+    - A csv file of that contains F1,Precision,Recall,Accuracy,TPR,FPR,TNR,FNR for KNN-1, KNN-3, and Random Forest classifiers. The file is saved in the path of output file you have provided
+    
+Example: 
+
+```python3 Classification.py -d features/2011 -o results/2011 -t degree``` 
+The script generates the file results/2011/degree_result.csv
+
+      
+    
 # Datasets:
 ## Drebin:
 - Malware:
@@ -138,11 +361,86 @@ Example:
     - newbenign_hashes_done.txt: List of hashes of newbenign dataset APKs that passed the features extraction.
     - newbenign_hashes_failed.txt: List of hashes of newbenign dataset APKs that failed in the features extraction.
     - newbenign_UsedToComplete.txt: List of hashes of APKs that are used to complete the newbenign original dataset.
+    
+ ## RevealDroid:
+ 
+  - Malware:
+     - drebin_sha.txt: List of drebin apps
+     - drebin_sha_intersection_ok_all_features.txt: List of drebin apps after features extraction
+     - remaining_sha_found_all.txt: List of VirusTotal apps
+     - remain_sha_intersection_ok_all_features.txt: List of VirusTotal apps after features extraction
+     - virusshare_md5.txt: List of VirusShare apps
+     - virusshare_sha_md5_all_intersection_ok_all_features.txt: List of VirusShare apps after features extraction
+
+  - Goodware:
+     - benign_androzoo.txt: List of benign apps
+     - benign_androzoo_intersection_ok_all_features.txt: List of benign apps after features extraction
+ 
+  - Family labels:
+     - all_labels_malware.txt: List of family labels for drebin, virusshare, and virustotal apps
+     - genome_sha256_labels.txt: List of family labels for genome apps
+
+
+    
+ ## DroidCat:
+ 
+ All these apps can be downloaded from AndroZoo
+ 
+ - Malware:
+     - apks.malware-2017-more
+     - apks.zoo2017
+     - apks.vs2016
+     - apks.vs2015
+     - apks.vs2014
+     - apks.vs2013
+     - apks.zoo2012
+     - apks.newzoo2011
+     - apks.zoo2011
+     - apks.zoo2010
+     
+ - Goodware:
+    - sha256.benign2017
+    - apks.zoobenign2016
+    - apks.zoobenign2015
+    - apks.zoobenign2014
+    - apks.zoobenign2013
+    - apks.zoobenign2012
+    - apks.zoobenign2011
+    - apks.zoobenign2010
+
+ ## MalScan:
+ 
+ All these apps can be downloaded from AndroZoo
+ 
+ - Malware:
+     - 2018_malware.txt
+     - 2017_malware.txt
+     - 2016_malware.txt
+     - 2015_malware.txt
+     - 2014_malware.txt
+     - 2013_malware.txt
+     - 2012_malware.txt
+     - 2011_malware.txt
+     
+ - Goodware:
+    - 2018_benign.txt
+    - 2017_benign.txt
+    - 2016_benign.txt
+    - 2015_benign.txt
+    - 2014_benign.txt
+    - 2013_benign.txt
+    - 2012_benign.txt
+    - 2011_benign.txt
+ 
 
 # Original Code: 
 - Repositories:
     - https://bitbucket.org/gianluca_students/mamadroid_code/
     - https://github.com/MLDroid/drebin
+    - https://bitbucket.org/joshuaga/revealdroid/src/master/
+    - https://bitbucket.org/joshuaga/android-reflection-analysis/src/master/
+    - https://bitbucket.org/haipeng_cai/droidcat/src/master/
+    - https://github.com/malscan-android/MalScan/tree/master/MalScan-code
 
 
 # Seed Values
@@ -151,5 +449,10 @@ To try to achieve replicable results, the results presented in our paper were co
     - 388652140
 - Drebin
     - 388652140
-
+- RevealDroid:
+    - 123456789
+- DroidCat
+    - 480509637
+- MalScan
+    - 480509637
 
